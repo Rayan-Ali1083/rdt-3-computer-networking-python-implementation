@@ -12,19 +12,20 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ACK = 0
 SEQ = 0
 
-data = input("Enter your message: ")
+data = ''
 packet_size = input('Enter packet size: ')
-packet_data = struct.Struct('I I 8s'+packet_size+'s')
+packet_data = struct.Struct('I I 8s '+packet_size+'s')
+client_data = struct.Struct('I I 32s')
 
 while data != 'kill':
-    
+    data = input("Enter your message: ")
     data_enc = data.encode()
 
     values = (ACK, SEQ, data_enc)
-    client_data = struct.Struct('I I '+packet_size+'s')
-    check_sum_data = (client_data.pack(*values))
+    udp_data = struct.Struct('I I 8s')    
+    check_sum_data = (udp_data.pack(*values))
     chkSum = bytes(hashlib.md5(check_sum_data).hexdigest(), encoding="UTF-8")
-
+    
     values = (ACK, SEQ, data_enc, chkSum)
     packet = packet_data.pack(*values)
 
@@ -60,6 +61,8 @@ while data != 'kill':
                 print("Correct Data")
                 correct_res_seq = recv_packet[1]
                 break
+
+            Flag = False
         except socket.timeout:
             Flag = True
             print('Server response timeout occurred... resending')
@@ -72,7 +75,6 @@ while data != 'kill':
         ACK = 0
 
     print("-----------------------------------------------------------------------------")
-    data = input("Enter your message: ")
 
 sock.close()
 response_sock.close()
