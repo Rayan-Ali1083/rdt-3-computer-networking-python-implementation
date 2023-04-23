@@ -3,7 +3,7 @@ import socket
 import struct
 import hashlib
 
-IP_ADDR = '192.168.0.104'
+IP_ADDR = '192.168.0.99'
 PORT = 9999
 
 
@@ -13,8 +13,8 @@ ACK = 0
 SEQ = 0
 
 data = ''
-packet_size = input('Enter packet size: ')
-packet_data = struct.Struct('I I 8s '+packet_size+'s')
+number_of_letters = input('Enter packet size: ')
+packet_data = struct.Struct('I I ' + number_of_letters + 's 32s')
 client_data = struct.Struct('I I 32s')
 
 while data != 'kill':
@@ -78,11 +78,3 @@ while data != 'kill':
 
 sock.close()
 response_sock.close()
-
-
-
-sock.connect((IP_ADDR, PORT))
-
-print(sock.recv(1024).decode())
-
-sock.close()
