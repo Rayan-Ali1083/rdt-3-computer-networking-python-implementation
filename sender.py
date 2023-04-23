@@ -41,7 +41,7 @@ while data != 'kill':
             # wait for ack from receiver
             response_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # if timeout time exceeds move to except block
-            response_sock.settimeout(0.09)
+            response_sock.settimeout(5)
             response_sock.bind((IP_ADDR, 8888))
 
             print('______Receiving Server Response______')
@@ -61,8 +61,6 @@ while data != 'kill':
                 print("Correct Data")
                 correct_res_seq = recv_packet[1]
                 break
-
-            Flag = False
         except socket.timeout:
             Flag = True
             print('Server response timeout occurred... resending')
