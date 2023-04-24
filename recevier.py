@@ -34,7 +34,7 @@ while True:
     packed_data = packer.pack(*values)
     chkSum = bytes(hashlib.md5(packed_data).hexdigest(), encoding="UTF-8")
 
-    if packet[3] == chkSum+bytes(1):
+    if packet[3] == chkSum:
         print('CheckSum Matched !!!')
         if packet[1] == 1:
             SEQ = 0
