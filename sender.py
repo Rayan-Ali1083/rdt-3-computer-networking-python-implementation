@@ -28,6 +28,11 @@ while data != 'kill':
     packet = packet_data.pack(*values)
 
     print('______Sending Packet______')
+    print('ACK: ', ACK)
+    print('SEQ: ', SEQ)
+    print('DATA: ', data_enc)
+    print('CHECKSUM: ', chk_sum)
+    
     flag = True
     while flag:
         try:
@@ -39,7 +44,7 @@ while data != 'kill':
             # wait for ack from receiver
             response_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # if timeout time exceeds move to except block
-            
+
             response_sock.settimeout(5)
             response_sock.bind((IP_ADDR, 8888))
 
@@ -51,13 +56,16 @@ while data != 'kill':
             recv_ACK = recv_packet[0]
             if curr_ACK != recv_ACK:
                 print('______Server Response_____')
-                print(recv_packet[0], recv_packet[1], recv_packet[2], '\n')
                 print("Corrupted Data")
+                print('ACK: ', recv_packet[0])
+                print('SEQ: ', recv_packet[1])                
                 continue
             else:
                 print('______Server Response_____')
-                print(recv_packet[0], recv_packet[1], recv_packet[2], '\n')
                 print("Correct Data")
+                print('ACK: ', recv_packet[0])
+                print('SEQ: ', recv_packet[1])
+                
                 correct_res_seq = recv_packet[1]
                 break
         except socket.timeout:
