@@ -1,4 +1,3 @@
-#client
 import socket
 import struct
 import hashlib
@@ -6,15 +5,14 @@ import hashlib
 IP_ADDR = '192.168.0.99'
 PORT = 9999
 
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 ACK = 0
 SEQ = 0
 
 data = ''
-number_of_letters = input('Enter packet size: ')
-packet_data = struct.Struct('I I ' + number_of_letters + 's 32s')
+packet_size = input('Enter packet size: ')
+packet_data = struct.Struct(f'I I {packet_size}s 32s')
 client_data = struct.Struct('I I 32s')
 
 while data != 'kill':
@@ -22,16 +20,16 @@ while data != 'kill':
     data_enc = data.encode()
 
     values = (ACK, SEQ, data_enc)
-    udp_data = struct.Struct('I I 8s')    
-    check_sum_data = (udp_data.pack(*values))
-    chkSum = bytes(hashlib.md5(check_sum_data).hexdigest(), encoding="UTF-8")
-    
-    values = (ACK, SEQ, data_enc, chkSum)
+    udp_data = struct.Struct('I I 8s')
+    check_sum_data = udp_data.pack(*values)
+    chk_sum = bytes(hashlib.md5(check_sum_data).hexdigest(), encoding="UTF-8")
+
+    values = (ACK, SEQ, data_enc, chk_sum)
     packet = packet_data.pack(*values)
 
     print('______Sending Packet______')
-    Flag = True
-    while Flag == True:
+    flag = True
+    while flag:
         try:
             curr_ACK = ACK
 
@@ -41,6 +39,7 @@ while data != 'kill':
             # wait for ack from receiver
             response_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # if timeout time exceeds move to except block
+            
             response_sock.settimeout(5)
             response_sock.bind((IP_ADDR, 8888))
 
@@ -53,7 +52,7 @@ while data != 'kill':
             if curr_ACK != recv_ACK:
                 print('______Server Response_____')
                 print(recv_packet[0], recv_packet[1], recv_packet[2], '\n')
-                print("Corrputed Data")
+                print("Corrupted Data")
                 continue
             else:
                 print('______Server Response_____')
@@ -62,15 +61,12 @@ while data != 'kill':
                 correct_res_seq = recv_packet[1]
                 break
         except socket.timeout:
-            Flag = True
+            flag = True
             print('Server response timeout occurred... resending')
             print('---------------------------------------------')
             continue
     SEQ = correct_res_seq
-    if ACK == 0:
-        ACK = 1
-    else:
-        ACK = 0
+    ACK ^= 1
 
     print("-----------------------------------------------------------------------------")
 
